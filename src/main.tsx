@@ -1,12 +1,12 @@
 import './style/global.less';
 import React, { useEffect } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client'; // Import createRoot
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import { ConfigProvider } from '@arco-design/web-react';
 import zhCN from '@arco-design/web-react/es/locale/zh-CN';
 import enUS from '@arco-design/web-react/es/locale/en-US';
-import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import rootReducer from './store';
 import PageLayout from './layout';
@@ -15,7 +15,7 @@ import Login from './pages/login';
 import checkLogin from './utils/checkLogin';
 import changeTheme from './utils/changeTheme';
 import useStorage from './utils/useStorage';
-import './mock';
+import './mock'; // Assuming this is for mock data
 
 const store = createStore(rootReducer);
 
@@ -84,10 +84,11 @@ function Index() {
       >
         <Provider store={store}>
           <GlobalContext.Provider value={contextValue}>
-            <Switch>
-              <Route path="/login" component={Login} />
-              <Route path="/" component={PageLayout} />
-            </Switch>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<Navigate to="/dashboard/workplace" replace />} />
+              <Route path="/*" element={<PageLayout />} />
+            </Routes>
           </GlobalContext.Provider>
         </Provider>
       </ConfigProvider>
@@ -95,4 +96,12 @@ function Index() {
   );
 }
 
-ReactDOM.render(<Index />, document.getElementById('root'));
+const container = document.getElementById('root');
+
+// Ensure the container exists before creating the root
+if (container) {
+  const root = createRoot(container); // Use createRoot from React 18
+  root.render(<Index />); // Render the main component using createRoot
+} else {
+  console.error("Root container not found!");
+}

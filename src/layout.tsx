@@ -1,10 +1,16 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Switch, Route, Redirect, useHistory } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Layout, Menu, Breadcrumb, Spin } from '@arco-design/web-react';
 import cs from 'classnames';
 import {
   IconDashboard,
-  IconTag,
+  IconList,
+  IconSettings,
+  IconFile,
+  IconApps,
+  IconCheckCircle,
+  IconExclamationCircle,
+  IconUser,
   IconMenuFold,
   IconMenuUnfold,
 } from '@arco-design/web-react/icon';
@@ -17,9 +23,9 @@ import useRoute, { IRoute } from '@/routes';
 import { isArray } from './utils/is';
 import useLocale from './utils/useLocale';
 import getUrlParams from './utils/getUrlParams';
-import lazyload from './utils/lazyload';
 import { GlobalState } from './store';
 import styles from './style/layout.module.less';
+import lazyload from './utils/lazyload';
 
 const MenuItem = Menu.Item;
 const SubMenu = Menu.SubMenu;
@@ -31,38 +37,81 @@ function getIconFromKey(key) {
   switch (key) {
     case 'dashboard':
       return <IconDashboard className={styles.icon} />;
-    case 'example':
-      return <IconTag className={styles.icon} />;
+    case 'list':
+      return <IconList className={styles.icon} />;
+    case 'form':
+      return <IconSettings className={styles.icon} />;
+    case 'profile':
+      return <IconFile className={styles.icon} />;
+    case 'visualization':
+      return <IconApps className={styles.icon} />;
+    case 'result':
+      return <IconCheckCircle className={styles.icon} />;
+    case 'exception':
+      return <IconExclamationCircle className={styles.icon} />;
+    case 'user':
+      return <IconUser className={styles.icon} />;
     default:
       return <div className={styles['icon-empty']} />;
   }
 }
 
+// const lazyload = (importFunc) => {
+//   const LazyComponent = lazy(importFunc);
+//   return (props) => (
+//       <Suspense fallback={<div>Loading...</div>}>
+//           <LazyComponent {...props} />
+//       </Suspense>
+//   );
+// };
+
 function getFlattenRoutes(routes) {
-  const mod = import.meta.glob('./pages/**/[a-z[]*.tsx');
+  const mod = import.meta.glob('./pages/**/[a-z[]*.tsx'); // Ensure this glob matches your structure
   const res = [];
+
   function travel(_routes) {
     _routes.forEach((route) => {
-      if (route.key && !route.children) {
-        route.component = lazyload(mod[`./pages/${route.key}/index.tsx`]);
-        res.push(route);
-      } else if (isArray(route.children) && route.children.length) {
+      const visibleChildren = (route.children || []).filter(
+        (child) => !child.ignore,
+      );
+
+      // Check if the route has a key and either has no children or visible children
+      if (route.key && (!route.children || !visibleChildren.length)) {
+        try {
+          // Attempt to load the component dynamically
+          const componentPath = `./pages/${route.key}/index.tsx`;
+          if (mod[componentPath]) {
+            route.component = lazyload(mod[componentPath]);
+            res.push(route);
+          } else {
+            console.warn(`Component not found for route: ${route.key}`);
+          }
+        } catch (e) {
+          console.log(`Error loading component for route key: ${route.key}`);
+          console.error(e);
+        }
+      }
+
+      // If there are children, traverse them
+      if (isArray(route.children) && route.children.length) {
         travel(route.children);
       }
     });
   }
+
   travel(routes);
   return res;
 }
 
 function PageLayout() {
   const urlParams = getUrlParams();
-  const history = useHistory();
-  const pathname = history.location.pathname;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const pathname = location.pathname;
   const currentComponent = qs.parseUrl(pathname).url.slice(1);
   const locale = useLocale();
   const { settings, userLoading, userInfo } = useSelector(
-    (state: GlobalState) => state
+    (state: GlobalState) => state,
   );
 
   const [routes, defaultRoute] = useRoute(userInfo?.permissions);
@@ -90,13 +139,14 @@ function PageLayout() {
 
   const flattenRoutes = useMemo(() => getFlattenRoutes(routes) || [], [routes]);
 
+  console.log(flattenRoutes);
   function onClickMenuItem(key) {
     const currentRoute = flattenRoutes.find((r) => r.key === key);
     const component = currentRoute.component;
     const preload = component.preload();
     NProgress.start();
     preload.then(() => {
-      history.push(currentRoute.path ? currentRoute.path : `/${key}`);
+      navigate(currentRoute.path ? currentRoute.path : `/${key}`);
       NProgress.done();
     });
   }
@@ -123,7 +173,7 @@ function PageLayout() {
 
         routeMap.current.set(
           `/${route.key}`,
-          breadcrumb ? [...parentNode, route.name] : []
+          breadcrumb ? [...parentNode, route.name] : [],
         );
 
         const visibleChildren = (route.children || []).filter((child) => {
@@ -131,7 +181,7 @@ function PageLayout() {
           if (ignore || route.ignore) {
             routeMap.current.set(
               `/${child.key}`,
-              breadcrumb ? [...parentNode, route.name, child.name] : []
+              breadcrumb ? [...parentNode, route.name, child.name] : [],
             );
           }
 
@@ -180,6 +230,7 @@ function PageLayout() {
     setBreadCrumb(routeConfig || []);
     updateMenuStatus();
   }, [pathname]);
+
   return (
     <Layout className={styles.layout}>
       <div
@@ -236,24 +287,15 @@ function PageLayout() {
                 </div>
               )}
               <Content>
-                <Switch>
-                  {flattenRoutes.map((route, index) => {
-                    return (
-                      <Route
-                        key={index}
-                        path={`/${route.key}`}
-                        component={route.component}
-                      />
-                    );
-                  })}
-                  <Route exact path="/">
-                    <Redirect to={`/${defaultRoute}`} />
-                  </Route>
-                  <Route
-                    path="*"
-                    component={lazyload(() => import('./pages/exception/403'))}
-                  />
-                </Switch>
+                <Routes>
+                  {flattenRoutes.map((route, index) => (
+                    <Route
+                      key={index}
+                      path={`/${route.key}`}
+                      element={<route.component />} // Render the component as a React element
+                    />
+                  ))}
+                </Routes>
               </Content>
             </div>
             {showFooter && <Footer />}
