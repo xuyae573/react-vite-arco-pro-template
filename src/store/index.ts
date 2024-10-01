@@ -1,4 +1,6 @@
+import { create } from 'zustand';
 import defaultSettings from '../settings.json';
+
 export interface GlobalState {
   settings?: typeof defaultSettings;
   userInfo?: {
@@ -20,24 +22,32 @@ const initialState: GlobalState = {
   },
 };
 
-export default function store(state = initialState, action) {
-  switch (action.type) {
-    case 'update-settings': {
-      const { settings } = action.payload;
-      return {
-        ...state,
-        settings,
-      };
-    }
-    case 'update-userInfo': {
-      const { userInfo = initialState.userInfo, userLoading } = action.payload;
-      return {
-        ...state,
-        userLoading,
-        userInfo,
-      };
-    }
-    default:
-      return state;
-  }
+interface GlobalStore extends GlobalState {
+  updateSettings: (settings: typeof defaultSettings) => void;
+  updateUserInfo: (
+    userInfo: Partial<GlobalState['userInfo']>,
+    userLoading?: boolean,
+  ) => void;
 }
+
+export const useGlobalStore = create<GlobalStore>((set) => ({
+  ...initialState,
+
+  // Function to update settings
+  updateSettings: (settings) =>
+    set((state) => ({
+      ...state,
+      settings,
+    })),
+
+  // Function to update user info
+  updateUserInfo: (userInfo, userLoading = false) =>
+    set((state) => ({
+      ...state,
+      userInfo: {
+        ...state.userInfo,
+        ...userInfo,
+      },
+      userLoading,
+    })),
+}));

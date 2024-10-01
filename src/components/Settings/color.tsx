@@ -2,19 +2,19 @@ import React from 'react';
 import { Trigger, Typography } from '@arco-design/web-react';
 import { SketchPicker } from 'react-color';
 import { generate, getRgbStr } from '@arco-design/color';
-import { useSelector, useDispatch } from 'react-redux';
-import { GlobalState } from '../../store';
+import { useGlobalStore } from '../../store';
 import useLocale from '@/utils/useLocale';
 import styles from './style/color-panel.module.less';
 
 function ColorPanel() {
-  const theme =
-    document.querySelector('body').getAttribute('arco-theme') || 'light';
-  const settings = useSelector((state: GlobalState) => state.settings);
+  // Access settings and updateSettings from the global store
+  const { settings, updateSettings } = useGlobalStore();
+
+  // Use default parameters for destructuring
+  const { theme = 'light', themeColor = '#1890ff' } = settings || {}; // Destructure with defaults if settings is undefined
+
   const locale = useLocale();
-  const themeColor = settings.themeColor;
   const list = generate(themeColor, { list: true });
-  const dispatch = useDispatch();
 
   return (
     <div>
@@ -26,10 +26,9 @@ function ColorPanel() {
             color={themeColor}
             onChangeComplete={(color) => {
               const newColor = color.hex;
-              dispatch({
-                type: 'update-settings',
-                payload: { settings: { ...settings, themeColor: newColor } },
-              });
+
+              // Update settings with the new theme color
+              updateSettings({ ...settings, themeColor: newColor });
               const newList = generate(newColor, {
                 list: true,
                 dark: theme === 'dark',
@@ -38,7 +37,7 @@ function ColorPanel() {
                 const rgbStr = getRgbStr(l);
                 document.body.style.setProperty(
                   `--arcoblue-${index + 1}`,
-                  rgbStr
+                  rgbStr,
                 );
               });
             }}

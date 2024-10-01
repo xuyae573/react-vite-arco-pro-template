@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { Switch, Divider, InputNumber } from '@arco-design/web-react';
-import { useSelector, useDispatch } from 'react-redux';
-import { GlobalState } from '../../store';
+
+import { useGlobalStore } from '../../store';
 import useLocale from '../../utils/useLocale';
 import styles from './style/block.module.less';
 
@@ -14,8 +14,7 @@ export interface BlockProps {
 export default function Block(props: BlockProps) {
   const { title, options, children } = props;
   const locale = useLocale();
-  const settings = useSelector((state: GlobalState) => state.settings);
-  const dispatch = useDispatch();
+  const { settings, updateSettings } = useGlobalStore();
 
   return (
     <div className={styles.block}>
@@ -36,10 +35,7 @@ export default function Block(props: BlockProps) {
                       ...settings,
                       [option.value]: checked,
                     };
-                    dispatch({
-                      type: 'update-settings',
-                      payload: { settings: newSetting },
-                    });
+                    updateSettings(newSetting);
                     // set color week
                     if (checked && option.value === 'colorWeek') {
                       document.body.style.filter = 'invert(80%)';

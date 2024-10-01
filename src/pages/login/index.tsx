@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import Footer from '@/components/Footer';
-import Logo from '@/assets/logo.svg';
+import Logo from '@/assets/logo.svg?url';
 import LoginForm from './form';
 import LoginBanner from './banner';
 import styles from './style/index.module.less';

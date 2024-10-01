@@ -1,14 +1,13 @@
 import './style/global.less';
 import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client'; // Import createRoot
-import { createStore } from 'redux';
-import { Provider } from 'react-redux';
+
 import { ConfigProvider } from '@arco-design/web-react';
 import zhCN from '@arco-design/web-react/es/locale/zh-CN';
 import enUS from '@arco-design/web-react/es/locale/en-US';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
-import rootReducer from './store';
+import { useGlobalStore } from './store';
 import PageLayout from './layout';
 import { GlobalContext } from './context';
 import Login from './pages/login';
@@ -16,8 +15,6 @@ import checkLogin from './utils/checkLogin';
 import changeTheme from './utils/changeTheme';
 import useStorage from './utils/useStorage';
 import './mock'; // Assuming this is for mock data
-
-const store = createStore(rootReducer);
 
 function Index() {
   const [lang, setLang] = useStorage('arco-lang', 'en-US');
@@ -35,15 +32,15 @@ function Index() {
   }
 
   function fetchUserInfo() {
-    store.dispatch({
-      type: 'update-userInfo',
-      payload: { userLoading: true },
-    });
+    const { updateUserInfo } = useGlobalStore.getState(); // Direct access to store
+
+    // Start loading
+    updateUserInfo({}, true);
+
+    // Fetch user data from API
     axios.get('/api/user/userInfo').then((res) => {
-      store.dispatch({
-        type: 'update-userInfo',
-        payload: { userInfo: res.data, userLoading: false },
-      });
+      // Update the store with the fetched userInfo and set loading to false
+      updateUserInfo(res.data, false);
     });
   }
 
@@ -82,15 +79,16 @@ function Index() {
           },
         }}
       >
-        <Provider store={store}>
-          <GlobalContext.Provider value={contextValue}>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/" element={<Navigate to="/dashboard/workplace" replace />} />
-              <Route path="/*" element={<PageLayout />} />
-            </Routes>
-          </GlobalContext.Provider>
-        </Provider>
+        <GlobalContext.Provider value={contextValue}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/"
+              element={<Navigate to="/dashboard/workplace" replace />}
+            />
+            <Route path="/*" element={<PageLayout />} />
+          </Routes>
+        </GlobalContext.Provider>
       </ConfigProvider>
     </BrowserRouter>
   );
@@ -103,5 +101,5 @@ if (container) {
   const root = createRoot(container); // Use createRoot from React 18
   root.render(<Index />); // Render the main component using createRoot
 } else {
-  console.error("Root container not found!");
+  console.error('Root container not found!');
 }

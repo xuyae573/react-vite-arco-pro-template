@@ -21,8 +21,7 @@ import {
   IconDashboard,
   IconTag,
 } from '@arco-design/web-react/icon';
-import { useSelector, useDispatch } from 'react-redux';
-import { GlobalState } from '@/store';
+import { useGlobalStore } from '@/store';
 import { GlobalContext } from '@/context';
 import useLocale from '@/utils/useLocale';
 import Logo from '@/assets/logo.svg';
@@ -35,8 +34,8 @@ import { generatePermission } from '@/routes';
 
 function Navbar({ show }: { show: boolean }) {
   const t = useLocale();
-  const userInfo = useSelector((state: GlobalState) => state.userInfo);
-  const dispatch = useDispatch();
+
+  const { userInfo, updateUserInfo } = useGlobalStore();
 
   const [_, setUserStatus] = useStorage('userStatus');
   const [role, setRole] = useStorage('userRole', 'admin');
@@ -57,15 +56,7 @@ function Navbar({ show }: { show: boolean }) {
   }
 
   useEffect(() => {
-    dispatch({
-      type: 'update-userInfo',
-      payload: {
-        userInfo: {
-          ...userInfo,
-          permissions: generatePermission(role),
-        },
-      },
-    });
+    updateUserInfo({ ...userInfo, permissions: generatePermission(role) });
   }, [role]);
 
   if (!show) {
@@ -147,8 +138,7 @@ function Navbar({ show }: { show: boolean }) {
             placeholder={t['navbar.search.placeholder']}
           />
         </li>
-   
-      
+
         <li>
           <Tooltip
             content={
