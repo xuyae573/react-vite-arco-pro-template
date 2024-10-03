@@ -1,5 +1,7 @@
 import auth, { AuthParams } from '@/utils/authentication';
 import { useEffect, useMemo, useState } from 'react';
+import lazyload from './utils/lazyload';
+import { isArray } from './utils/is';
 
 export type IRoute = AuthParams & {
   name: string;
@@ -8,6 +10,44 @@ export type IRoute = AuthParams & {
   children?: IRoute[];
   ignore?: boolean;
 };
+
+export function getFlattenRoutes(routes) {
+  const mod = import.meta.glob('./pages/**/[a-z[]*.tsx'); // Ensure this glob matches your structure
+  const res = [];
+
+  function travel(_routes) {
+    _routes.forEach((route) => {
+      const visibleChildren = (route.children || []).filter(
+        (child) => !child.ignore,
+      );
+
+      // Check if the route has a key and either has no children or visible children
+      if (route.key && (!route.children || !visibleChildren.length)) {
+        try {
+          // Attempt to load the component dynamically
+          const componentPath = `./pages/${route.key}/index.tsx`;
+          if (mod[componentPath]) {
+            route.component = lazyload(mod[componentPath]);
+            res.push(route);
+          } else {
+            console.warn(`Component not found for route: ${route.key}`);
+          }
+        } catch (e) {
+          console.log(`Error loading component for route key: ${route.key}`);
+          console.error(e);
+        }
+      }
+
+      // If there are children, traverse them
+      if (isArray(route.children) && route.children.length) {
+        travel(route.children);
+      }
+    });
+  }
+
+  travel(routes);
+  return res;
+}
 
 export const routes: IRoute[] = [
   {

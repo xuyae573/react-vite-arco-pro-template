@@ -55,10 +55,19 @@ function Setting(props: SettingProps) {
           options={[
             { name: 'settings.navbar', value: 'navbar' },
             { name: 'settings.menu', value: 'menu' },
+            { name: 'settings.topMenu', value: 'topMenu' },
+            { name: 'settings.hideMenu', value: 'hideMenu' },
             { name: 'settings.footer', value: 'footer' },
             { name: 'settings.menuWidth', value: 'menuWidth', type: 'number' },
+            {
+              name: 'settings.theme',
+              value: 'light',
+              type: 'radio',
+              selectOptions: ['light', 'dark'],
+            },
           ]}
         />
+
         <Block
           title={locale['settings.otherSettings']}
           options={[{ name: 'settings.colorWeek', value: 'colorWeek' }]}

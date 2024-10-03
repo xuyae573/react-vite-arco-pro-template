@@ -3,7 +3,6 @@ import {
   Tooltip,
   Input,
   Avatar,
-  Select,
   Dropdown,
   Menu,
   Divider,
@@ -11,7 +10,6 @@ import {
   Button,
 } from '@arco-design/web-react';
 import {
-  IconLanguage,
   IconSunFill,
   IconMoonFill,
   IconUser,
@@ -28,19 +26,28 @@ import Logo from '@/assets/logo.svg';
 import IconButton from './IconButton';
 import Settings from '../Settings';
 import styles from './style/index.module.less';
-import defaultLocale from '@/locale';
 import useStorage from '@/utils/useStorage';
 import { generatePermission } from '@/routes';
+import MenuComponent from '../Menu';
+import useRoute from '@/routes';
 
-function Navbar({ show }: { show: boolean }) {
+function Navbar({
+  show,
+  defaultSelectedKeys,
+}: {
+  show: boolean;
+  defaultSelectedKeys?: string[];
+}) {
   const t = useLocale();
 
-  const { userInfo, updateUserInfo } = useGlobalStore();
+  const { userInfo, updateUserInfo, settings } = useGlobalStore();
 
   const [_, setUserStatus] = useStorage('userStatus');
   const [role, setRole] = useStorage('userRole', 'admin');
 
   const { setLang, lang, theme, setTheme } = useContext(GlobalContext);
+  const [routes] = useRoute(userInfo?.permissions);
+  const showTopMenu = settings.topMenu;
 
   function logout() {
     setUserStatus('logout');
@@ -71,31 +78,8 @@ function Navbar({ show }: { show: boolean }) {
     );
   }
 
-  const handleChangeRole = () => {
-    const newRole = role === 'admin' ? 'user' : 'admin';
-    setRole(newRole);
-  };
-
   const droplist = (
     <Menu onClickMenuItem={onMenuItemClick}>
-      <Menu.SubMenu
-        key="role"
-        title={
-          <>
-            <IconUser className={styles['dropdown-icon']} />
-            <span className={styles['user-role']}>
-              {role === 'admin'
-                ? t['menu.user.role.admin']
-                : t['menu.user.role.user']}
-            </span>
-          </>
-        }
-      >
-        <Menu.Item onClick={handleChangeRole} key="switch role">
-          <IconTag className={styles['dropdown-icon']} />
-          {t['menu.user.switchRoles']}
-        </Menu.Item>
-      </Menu.SubMenu>
       <Menu.Item key="setting">
         <IconSettings className={styles['dropdown-icon']} />
         {t['menu.user.setting']}
@@ -131,6 +115,18 @@ function Navbar({ show }: { show: boolean }) {
           <div className={styles['logo-name']}>Arco Pro</div>
         </div>
       </div>
+
+      {showTopMenu && (
+        <div className={styles['center-side']}>
+          <MenuComponent
+            routes={routes}
+            topMenu={true}
+            className={styles['menu']}
+            defaultSelectedKeys={defaultSelectedKeys}
+          />
+        </div>
+      )}
+
       <ul className={styles.right}>
         <li>
           <Input.Search
