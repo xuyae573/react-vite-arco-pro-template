@@ -64,6 +64,7 @@ function Overview() {
 
   const { userInfo } = useGlobalStore();
 
+  const overviewLineTitle = t['workplace.line.title'];
   const fetchData = () => {
     setLoading(true);
     axios
@@ -135,6 +136,25 @@ function Overview() {
         </Col>
       </Row>
       <Divider />
+      <div>
+        <div className={styles.ctw}>
+          <Typography.Paragraph
+            className={styles['chart-title']}
+            style={{ marginBottom: 0 }}
+          >
+            {t['workplace.contentData']}
+            <span className={styles['chart-sub-title']}>
+              ({t['workplace.1year']})
+            </span>
+          </Typography.Paragraph>
+          <Link>{t['workplace.seeMore']}</Link>
+        </div>
+        <OverviewAreaLine
+          data={data.chartData}
+          loading={loading}
+          name={overviewLineTitle}
+        />
+      </div>
     </Card>
   );
 }

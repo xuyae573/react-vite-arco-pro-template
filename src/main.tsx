@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client'; // Import createRoot
 
 import { ConfigProvider } from '@arco-design/web-react';
-import zhCN from '@arco-design/web-react/es/locale/zh-CN';
 import enUS from '@arco-design/web-react/es/locale/en-US';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
@@ -22,12 +21,10 @@ function Index() {
 
   function getArcoLocale() {
     switch (lang) {
-      case 'zh-CN':
-        return zhCN;
       case 'en-US':
         return enUS;
       default:
-        return zhCN;
+        return enUS;
     }
   }
 

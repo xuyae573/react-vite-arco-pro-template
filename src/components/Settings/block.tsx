@@ -3,8 +3,6 @@ import {
   Switch,
   Divider,
   InputNumber,
-  Radio,
-  Button,
 } from '@arco-design/web-react';
 
 import { useGlobalStore } from '../../store';
@@ -17,7 +15,7 @@ export interface BlockProps {
     name: string;
     value: string;
     selectOptions?: string[];
-    type?: 'switch' | 'number' | 'radio';
+    type?: 'switch' | 'number';
   }[];
   children?: ReactNode;
 }
@@ -70,38 +68,6 @@ export default function Block(props: BlockProps) {
                     updateSettings(newSetting);
                   }}
                 />
-              )}
-              {type === 'radio' && (
-                <Radio.Group
-                  defaultValue={option.value}
-                  name="button-radio-group"
-                >
-                  {option.selectOptions.map((item) => {
-                    return (
-                      <Radio key={item} value={item}>
-                        {({ checked }) => {
-                          return (
-                            <Button
-                              tabIndex={-1}
-                              key={item}
-                              shape="round"
-                              type={checked ? 'primary' : 'default'}
-                              onChange={(value) => {
-                                const newSetting = {
-                                  ...settings,
-                                  [option.value]: value,
-                                };
-                                updateSettings(newSetting);
-                              }}
-                            >
-                              {item}
-                            </Button>
-                          );
-                        }}
-                      </Radio>
-                    );
-                  })}
-                </Radio.Group>
               )}
             </div>
           );

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { vitePluginForArco } from '@arco-plugins/vite-react';
-import setting from './src/settings.json';
+import setting from './src/config/settings.json';
 import svgr from 'vite-plugin-svgr';
 // https://vitejs.dev/config/
 export default defineConfig({

@@ -34,9 +34,11 @@ import useRoute from '@/routes';
 function Navbar({
   show,
   defaultSelectedKeys,
+  defaultOpenKeys
 }: {
   show: boolean;
   defaultSelectedKeys?: string[];
+  defaultOpenKeys?:string[]
 }) {
   const t = useLocale();
 
@@ -123,6 +125,7 @@ function Navbar({
             topMenu={true}
             className={styles['menu']}
             defaultSelectedKeys={defaultSelectedKeys}
+            defaultOpenKeys={defaultOpenKeys}
           />
         </div>
       )}

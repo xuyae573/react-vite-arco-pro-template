@@ -50,6 +50,7 @@ function Setting(props: SettingProps) {
         <Block title={locale['settings.themeColor']}>
           <ColorPanel />
         </Block>
+
         <Block
           title={locale['settings.content']}
           options={[
@@ -59,12 +60,6 @@ function Setting(props: SettingProps) {
             { name: 'settings.hideMenu', value: 'hideMenu' },
             { name: 'settings.footer', value: 'footer' },
             { name: 'settings.menuWidth', value: 'menuWidth', type: 'number' },
-            {
-              name: 'settings.theme',
-              value: 'light',
-              type: 'radio',
-              selectOptions: ['light', 'dark'],
-            },
           ]}
         />
 

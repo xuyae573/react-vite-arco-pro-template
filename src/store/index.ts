@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import defaultSettings from '../settings.json';
+import defaultSettings from '../config/settings.json';
 
 export interface GlobalState {
   settings?: typeof defaultSettings;

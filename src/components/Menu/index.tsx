@@ -1,9 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Menu } from '@arco-design/web-react';
-import {
-  IconDashboard,
-  IconFile,
-} from '@arco-design/web-react/icon';
+import { IconDashboard, IconFile } from '@arco-design/web-react/icon';
 import { useNavigate } from 'react-router-dom';
 import NProgress from 'nprogress';
 import useLocale from '@/utils/useLocale';
@@ -27,6 +24,7 @@ function getIconFromKey(key) {
 function MenuComponent({
   routes,
   defaultSelectedKeys = [],
+  defaultOpenKeys = [],
   topMenu = false,
   className = '',
 }) {
@@ -36,7 +34,7 @@ function MenuComponent({
   const flattenRoutes = useMemo(() => getFlattenRoutes(routes) || [], [routes]);
   const [selectedKeys, setSelectedKeys] =
     useState<string[]>(defaultSelectedKeys);
-  const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const [openKeys, setOpenKeys] = useState<string[]>(defaultOpenKeys);
 
   function onClickMenuItem(key) {
     const currentRoute = flattenRoutes.find((r) => r.key === key);

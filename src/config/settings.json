@@ -4,7 +4,6 @@
   "navbar": true,
   "menu": true,
   "topMenu": true,
-  "hideMenu": false,
   "menuCollapse": false,
   "footer": true,
   "themeColor": "#165DFF",

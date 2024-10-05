@@ -3,12 +3,14 @@ declare module '*.less' {
   export default classes;
 }
 
-declare module '*/settings.json' {
+declare module '*/config/settings.json' {
   const value: {
     colorWeek: boolean;
     navbar: boolean;
+    topMenu: boolean;
     menu: boolean;
     footer: boolean;
+    theme: string;
     themeColor: string;
     menuWidth: number;
   };

@@ -2,11 +2,12 @@ import React from 'react';
 import { Chart, Line, Axis, Area, Tooltip } from 'bizcharts';
 import { Spin } from '@arco-design/web-react';
 import CustomTooltip from './customer-tooltip';
+ 
 
 function OverviewAreaLine({
   data,
   loading,
-  name = '总内容量',
+  name = '',
   color = '#4080FF',
 }: {
   data: any[];

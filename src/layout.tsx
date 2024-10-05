@@ -24,6 +24,9 @@ function PageLayout() {
   const { settings, userLoading, userInfo } = useGlobalStore();
   const [routes, defaultRoute] = useRoute(userInfo?.permissions);
   const defaultSelectedKeys = [currentComponent || defaultRoute];
+  const paths = (currentComponent || defaultRoute).split('/');
+  const defaultOpenKeys = paths.slice(0, paths.length - 1);
+
 
   const [breadcrumb, setBreadCrumb] = useState([]);
   const [collapsed, setCollapsed] = useState<boolean>(false);
@@ -58,7 +61,7 @@ function PageLayout() {
           [styles['layout-navbar-hidden']]: !showNavbar,
         })}
       >
-        <Navbar show={showNavbar} defaultSelectedKeys={defaultSelectedKeys} />
+        <Navbar show={showNavbar} defaultSelectedKeys={defaultSelectedKeys} defaultOpenKeys={defaultOpenKeys} />
       </div>
       {userLoading ? (
         <Spin className={styles['spin']} />
@@ -79,6 +82,7 @@ function PageLayout() {
                 <MenuComponent
                   routes={routes}
                   defaultSelectedKeys={defaultSelectedKeys}
+                  defaultOpenKeys={defaultOpenKeys}
                 />
               </div>
               <div className={styles['collapse-btn']} onClick={toggleCollapse}>
